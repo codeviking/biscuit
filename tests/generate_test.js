@@ -10,6 +10,8 @@ describe('biscuit', function() {
   describe('biscuit.generate', function() {
     it('generates a new project into the specified directory', function(done){
 
+      // TODO: Need to cleanup test artifacts before generation
+      
       biscuit.generate(TMP_PATH)
         .done(function() {
 
