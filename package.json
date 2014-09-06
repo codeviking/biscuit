@@ -1,0 +1,18 @@
+{
+  "name": "biscuit",
+  "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/allenai/biscuit.git"
+  },
+  "dependencies": {
+    "gulp": "^3.8.7",
+    "minimist": "^1.1.0",
+    "ncp": "^0.6.0",
+    "q": "^1.0.1"
+  },
+  "scripts": {},
+  "devDependencies": {
+    "gulp-mocha": "^1.0.0"
+  }
+}

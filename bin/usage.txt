@@ -1,0 +1,6 @@
+biscuit
+
+Usage: biscuit [OPTION]... COMMAND
+
+where COMMAND is one of:
+  generate, build
