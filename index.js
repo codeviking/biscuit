@@ -2,6 +2,7 @@ var fs = require('fs');
 var util = require('util');
 var q = require('q');
 var ncp = require('ncp');
+var server = require('./server');
 
 var Paths = {
   SCAFFOLD : __dirname + '/scaffold'
@@ -20,7 +21,7 @@ module.exports = {
    * @return {undefined}
    */
   generate: function(dest) {
-    var deferred = q.defer();
+    var generated = q.defer();
 
     if(!dest || !fs.statSync(dest).isDirectory()) {
       dest = process.cwd();
@@ -31,13 +32,16 @@ module.exports = {
     // etc...)
     ncp(Paths.SCAFFOLD, dest, { filter: '.git', clobber: false }, function(err) {
       if(err) {
-        console.log(err);
-        deferred.reject(err);
+        generated.reject(err);
       } else {
-        deferred.resolve();
+        generated.resolve();
       }
     });
 
-    return deferred.promise;
+    return generated.promise;
+  },
+
+  serve: function(src) {
+    return server.start(src);
   }
 }

@@ -15,9 +15,14 @@ if(args.help) {
 }
 
 var command = args._.slice(2).shift();
+
+// TODO: handle command errors and output usage
 switch(command) {
   case 'generate':
     biscuit.generate.apply(biscuit, args._.slice(3));
+    break;
+  case 'serve':
+    biscuit.serve.apply(biscuit, args._.slice(3));
     break;
   default:
     usage();

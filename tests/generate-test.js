@@ -13,7 +13,7 @@ describe('biscuit', function() {
           // TODO: Write a more advanced mechanism for comparing the contents of
           // scaffold with this in TMP_PATH
           // TODO: Look into why the mocha report of errors is so nasty
-          assert.notEqual(-1, fs.readdirSync(TMP_PATH).indexOf('public'), 'Directory not found.');
+          assert.notEqual(-1, fs.readdirSync(TMP_PATH).indexOf('src'), 'Directory not found.');
           done();
         });
     });
