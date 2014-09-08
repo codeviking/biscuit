@@ -14,6 +14,6 @@ gulp.task('clean-test', function() {
  * suite.
  */
 gulp.task('test', [ 'clean-test' ], function() {
-  gulp.src('tests/*_test.js', { read: false })
+  gulp.src('tests/*-test.js', { read: false })
     .pipe(mocha());
 });
