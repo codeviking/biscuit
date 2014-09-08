@@ -22,18 +22,18 @@ module.exports = {
   generate: function(dest) {
     var deferred = q.defer();
 
-    console.log(util.format('Generating new project in %s...', dest));
-
     if(!dest || !fs.statSync(dest).isDirectory()) {
       dest = process.cwd();
     }
 
-    ncp(Paths.SCAFFOLD, dest, { filter: '.git' }, function(err) {
+    // TODO: option to enable "clobbering", or selective "clobbering" (ie, update
+    // to the latest styles and JS, but don't clobber the application HTML file,
+    // etc...)
+    ncp(Paths.SCAFFOLD, dest, { filter: '.git', clobber: false }, function(err) {
       if(err) {
         console.log(err);
         deferred.reject(err);
       } else {
-        console.log(util.format('Success! New project created in %s', dest));
         deferred.resolve();
       }
     });

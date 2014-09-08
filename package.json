@@ -13,6 +13,7 @@
   },
   "scripts": {},
   "devDependencies": {
-    "gulp-mocha": "^1.0.0"
+    "gulp-mocha": "^1.0.0",
+    "gulp-rimraf": "^0.1.0"
   }
 }
