@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 var biscuit = require('../');
 var fs = require('fs');
+var colors = require('colors');
 var minimist = require('minimist');
 
 var args = minimist(process.argv);
@@ -15,17 +16,41 @@ if(args.help) {
 }
 
 var command = args._.slice(2).shift();
+var action;
+var actionArgs;
 
 // TODO: handle command errors and output usage
 switch(command) {
   case 'generate':
-    biscuit.generate.apply(biscuit, args._.slice(3));
+    action = biscuit.generate;
+    actionArgs = args._.slice(3);
     break;
-  case 'serve':
-    biscuit.serve.apply(biscuit, args._.slice(3));
+  case 'start-server':
+    action = biscuit.startServer;
+    actionArgs = args._.slice(3);
     break;
-  default:
-    usage();
-    process.exit(1);
+  case 'stop-server':
+    action = biscuit.stopServer;
+    actionArgs = args._.slice(3);
     break;
+}
+
+if(action && actionArgs) {
+  action.apply(biscuit, actionArgs).then(
+    function(message) {
+      if(message) {
+        console.log('Success: '.green + message);
+      }
+      process.exit(0);
+    },
+    function(error) {
+      if(error) {
+        console.error('Error: '.red + error);
+      }
+      process.exit(1);
+    }
+  );
+} else {
+  usage();
+  process.exit(1);
 }

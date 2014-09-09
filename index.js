@@ -41,7 +41,11 @@ module.exports = {
     return generated.promise;
   },
 
-  serve: function(src) {
-    return server.start(src);
+  startServer: function(src, port) {
+    return server.start(src, port);
+  },
+
+  stopServer: function(src) {
+    return server.stop(src);
   }
 }

@@ -44,6 +44,7 @@ Biscuit.prototype.html = function(dir) {
 
 Biscuit.prototype.less = function(dir) {
   var compiled = q.defer();
+  // TODO: put in autoprefixer
   gulp.src(path.resolve(this.src, 'styles.less'))
     .pipe(plumber(compiled.reject))
     .pipe(less({ compress: true }))

@@ -7,6 +7,7 @@
     "url": "https://github.com/allenai/biscuit.git"
   },
   "dependencies": {
+    "colors": "^0.6.2",
     "express": "^4.8.8",
     "gulp": "^3.8.7",
     "gulp-less": "^1.3.5",
