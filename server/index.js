@@ -4,7 +4,7 @@ var util = require('util');
 var path = require('path');
 var fs = require('fs');
 
-var DEFAULT_PORT = 4040;
+var DEFAULT_PORT = 4000;
 
 function isRunning(pid) {
   if(!pid) {
