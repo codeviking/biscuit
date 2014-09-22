@@ -28,11 +28,7 @@ var biscuit = new Biscuit(src);
 var dir = path.resolve(src, '../build');
 var app = express();
 
-app.disable('x-powered-by');
-
 app.use(function(request, response, next) {
-  response.set('X-Powered-By', 'Biscuit');
-
   biscuit.bake().then(
     function() {
       next();
@@ -48,5 +44,6 @@ app.use(function(request, response, next) {
 app.use(express.static(dir));
 
 app.listen(port, function() {
-  console.log(util.format('Biscuit'.yellow + ' server listening on %s', port).green);
+  console.log(util.format('Biscuit'.cyan + ' server attached to ' + src.magenta + ' listening on %s', port.green))
+  process.send('SERVER_STARTED');
 });
