@@ -30,7 +30,7 @@ gulp.task('less', function() {
               err.message,
               err.filename,
               err.line,
-              err.extract
+              err.extract.join('\n')
             )
           )
         );

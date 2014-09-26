@@ -4,6 +4,7 @@ var util = require('util');
 var path = require('path');
 var rimraf = require('rimraf');
 var cp = require('child_process');
+var butil = require('biscuit-util');
 
 function Biscuit(src) {
   if(!src || !fs.existsSync(src) || !fs.statSync(src).isDirectory()) {
@@ -20,7 +21,7 @@ Biscuit.prototype.bake = function() {
     fs.mkdirSync(dir);
   }
 
-  var g = cp.spawn('gulp', ['--baking'], { cwd: dir, });
+  var g = cp.spawn('gulp', [ '--baking' ], { cwd: dir, });
 
   var err = '';
   g.stderr.on('data', function(d) {
@@ -36,7 +37,7 @@ Biscuit.prototype.bake = function() {
   g.on('close', function() {
     if(err) {
       try {
-        err = JSON.parse(err);
+        err = new butil.GulpTaskError(JSON.parse(err));
       } catch(e) {}
       baked.reject(err);
     } else {

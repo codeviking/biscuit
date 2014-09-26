@@ -16,9 +16,10 @@
     }
   ],
   "dependencies": {
-    "biscuit-util": "0.0.1",
+    "biscuit-util": "^0.1.1",
     "colors": "^0.6.2",
     "express": "^4.8.8",
+    "express-handlebars": "^1.1.0",
     "gulp": "^3.8.7",
     "minimist": "^1.1.0",
     "ncp": "^0.6.0",

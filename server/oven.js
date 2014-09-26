@@ -5,6 +5,7 @@ var q = require('q');
 var path = require('path');
 var colors = require('colors');
 var fs = require('fs');
+var handlebars = require('express-handlebars');
 var Biscuit = require('../biscuit');
 
 // This script takes two arguments, the path to the source files and the port
@@ -30,14 +31,26 @@ var biscuit = new Biscuit(src);
 var dir = path.resolve(src, '../build');
 var app = express();
 
+app.set('views', __dirname + '/views');
+app.engine(
+    'handlebars',
+    handlebars({
+      defaultLayout: 'main',
+      layoutsDir: app.get('views') + '/layouts'
+    })
+  );
+app.set('view engine', 'handlebars');
+
 app.use(function(request, response, next) {
   biscuit.bake().then(
     function() {
       next();
     },
-    function(err) {
-      // TODO: *clean* error template
-      response.send('<pre>' + ( typeof err !== 'string' ? JSON.stringify(err) : err ) + '</pre>');
+    function(error) {
+      response.render('error', {
+          title: 'Gulp Build Error',
+          error: error
+        });
     }
   );
 });
