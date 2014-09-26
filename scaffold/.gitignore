@@ -1,2 +1,3 @@
-build/
-var/
+build
+var
+node_modules

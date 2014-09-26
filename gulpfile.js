@@ -1,5 +1,5 @@
 var gulp = require('gulp');
-var rimraf = require('gulp-rimraf')
+var rimraf = require('gulp-rimraf');
 var mocha = require('gulp-mocha');
 
 /**

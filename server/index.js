@@ -34,6 +34,7 @@ function getExistingServerPid(src) {
 }
 
 module.exports = {
+  // TODO: need to handle exceptions in oven and report them
   start: function(src, port) {
     var started = q.defer();
     var pid = getExistingServerPid(src);
@@ -45,19 +46,36 @@ module.exports = {
           typeof port === 'undefined' ? DEFAULT_PORT : port,
         ]
       );
+      fs.writeFileSync(getPidFilePath(src), p.pid);
+
       // Wait for the SERVER_STARTED message from the child process, which
       // indicates the server is up and running.
-      // TODO: Should we have a timeout if this isn't ever received?
       p.on('message', function(m) {
         if(m === 'SERVER_STARTED') {
           started.resolve();
         }
       });
+
+      p.on('error', function(err) {
+        fs.unlinkSync(getPidFilePath(src));
+        started.reject(
+            util.format(
+              'Error encountered while attempting to start Server : %s',
+              err
+            )
+          );
+      });
+
       p.on('close', function(code, signal) {
         fs.unlinkSync(getPidFilePath(src));
-        started.reject(code, signal);
+        started.reject(
+            util.format(
+              'Server unexpectantly shut down. Code: %s, Signal: %s',
+              code,
+              signal
+            )
+          );
       });
-      fs.writeFileSync(getPidFilePath(src), p.pid);
     } else {
       started.reject(util.format('Server is already running with pid: %s', pid));
     }

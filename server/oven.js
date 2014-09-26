@@ -14,6 +14,8 @@ var Biscuit = require('../biscuit');
 var port = process.argv.pop();
 var src = process.argv.pop();
 
+src = src && path.resolve(src);
+
 if(!port) {
   console.error(util.format('Invalid port: %s', port).red);
   process.exit(1);
@@ -33,10 +35,9 @@ app.use(function(request, response, next) {
     function() {
       next();
     },
-    function(errors) {
-      // TODO: handle multiple errors and come up with a clean
-      // error template
-      response.send(JSON.stringify(errors.shift()));
+    function(err) {
+      // TODO: *clean* error template
+      response.send('<pre>' + ( typeof err !== 'string' ? JSON.stringify(err) : err ) + '</pre>');
     }
   );
 });
