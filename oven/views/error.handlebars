@@ -1,0 +1,22 @@
+<h1>{{title}}</h1>
+<h2>{{error.message}}</h2>
+<dl>
+  {{error.task}}
+    <dt>Gulp Task:</dt>
+    <dd>{{.}}</dd>
+  {{/error.task}}
+  {{#error.file}}
+    <dt>File:</dt>
+    <dd>{{.}}</dd>
+  {{/error.file}}
+  {{#error.line}}
+    <dt>Line:</dt>
+    <dd>{{.}}</dd>
+  {{/error.line}}
+</dl>
+<pre>
+  {{#error.extra}}{{.}}{{/error.extra}}
+</pre>
+<footer>
+  Powered by <a href="http://github.com/allenai/biscuit" target="_blank">Biscuit</a>
+</fotter>

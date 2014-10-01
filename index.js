@@ -2,7 +2,8 @@ var fs = require('fs');
 var util = require('util');
 var q = require('q');
 var ncp = require('ncp');
-var server = require('./server');
+
+var Biscuit = require('./biscuit');
 
 var Paths = {
   SCAFFOLD : __dirname + '/scaffold'
@@ -20,12 +21,17 @@ module.exports = {
    *
    * @return {undefined}
    */
-  generate: function(dest) {
+  generate: function(recipe, dest) {
     var generated = q.defer();
 
     if(!dest || !fs.statSync(dest).isDirectory()) {
       dest = process.cwd();
     }
+
+    // TODO:
+    // Verify recipe
+    // Download recipe source
+    // Execute test hooks
 
     // TODO: option to enable "clobbering", or selective "clobbering" (ie, update
     // to the latest styles and JS, but don't clobber the application HTML file,
@@ -42,11 +48,11 @@ module.exports = {
   },
 
   startServer: function(src, port) {
-    return server.start(src, port);
+    return new Biscuit(src || process.cwd()).startServer(port || 4000);
   },
 
   stopServer: function(src) {
-    return server.stop(src);
+    return new Biscuit(src || process.cwd()).stopServer();
   }
 
 }
