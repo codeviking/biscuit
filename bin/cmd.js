@@ -19,7 +19,6 @@ var command = args._.slice(2).shift();
 var action;
 var actionArgs;
 
-// TODO: handle command errors and output usage
 switch(command) {
   case 'generate':
     action = biscuit.generate;
@@ -36,20 +35,24 @@ switch(command) {
 }
 
 if(action && actionArgs) {
-  action.apply(biscuit, actionArgs).then(
-    function(message) {
-      if(message) {
-        console.log('Success: '.green + message);
+  try {
+    action.apply(biscuit, actionArgs).then(
+      function(message) {
+        if(message) {
+          console.log('Success: '.green + message);
+        }
+        process.exit(0);
+      },
+      function(error) {
+        if(error) {
+          console.error('Error: '.red + error);
+        }
+        process.exit(1);
       }
-      process.exit(0);
-    },
-    function(error) {
-      if(error) {
-        console.error('Error: '.red + error);
-      }
-      process.exit(1);
-    }
-  );
+    );
+  } catch(e) {
+    console.error('Error: '.red + e.toString());
+  }
 } else {
   usage();
   process.exit(1);

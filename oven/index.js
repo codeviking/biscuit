@@ -16,8 +16,6 @@ var Biscuit = require('../biscuit');
 var port = process.argv.pop();
 var src = process.argv.pop();
 
-src = src && path.resolve(src);
-
 if(!port) {
   console.error(util.format('Invalid port: %s', port).red);
   process.exit(1);
@@ -52,7 +50,7 @@ app.set('view engine', 'handlebars');
 // var/ called build-status or something akin to that, and instead read from that
 // and accordingly understand the state of the build. I'd like to discuss this
 // with @markschaake and figure out what's best.
-fs.watch(biscuit.paths.SRC, function(event, filename) {
+fs.watch(biscuit.recipe.src, function(event, filename) {
   biscuit.bake();
 });
 
@@ -89,12 +87,12 @@ app.use(function(request, response, next) {
   }
 });
 
-app.use(express.static(biscuit.paths.BUILD));
+app.use(express.static(biscuit.recipe.build));
 
 app.listen(port, function() {
   console.log(
       util.format('%s server started\nSource: %s\nBuild: %s\nPort: %s',
-        'Biscuit'.cyan, biscuit.paths.SRC.magenta, biscuit.paths.BUILD.magenta,
+        'Biscuit'.cyan, biscuit.recipe.src.magenta, biscuit.recipe.build.magenta,
         port.green
       )
     );

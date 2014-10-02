@@ -7,51 +7,25 @@ var cp = require('child_process');
 var butil = require('biscuit-util');
 var events = require('events');
 
-/**
- * Loads the paths definition for a biscuit project at the specified src path.
- *
- * TODO(samskjonsberg) This could be consolidated to biscuit-util as a generic object,
- * BiscuitPaths or BiscuitRecipe.  The object could also include an inherit
- * validation mechanism so that the code doesn't have to live here.
- *
- * @returns {object} The biscuit paths definition.
- */
-function loadPaths(src) {
-  var pathsFile = path.resolve(src, 'paths.js');
-
-  if(!fs.existsSync(pathsFile) || !fs.statSync(pathsFile).isFile()) {
-    throw util.format('Paths file %s doesn\'t exist', pathsFile);
-  }
-
-  var paths = require(pathsFile);
-  Object.getOwnPropertyNames(paths).forEach(function(name) {
-    paths[name] = path.resolve(src, paths[name]);
-  });
-
-  if(!paths.SRC || !fs.existsSync(paths.SRC) || !fs.statSync(paths.SRC).isDirectory()) {
-    throw util.format('Invalid source path %s', paths.SRC);
-  }
-  if(!paths.BUILD || !fs.existsSync(paths.BUILD) || !fs.statSync(paths.BUILD).isDirectory()) {
-    throw util.format('Invalid build path %s', paths.BUILD);
-  }
-  if(!paths.SRC || !fs.existsSync(paths.VAR) || !fs.statSync(paths.VAR).isDirectory()) {
-    throw util.format('Invalid var path %s', paths.VAR);
-  }
-  return paths;
-};
-
 function Biscuit(base) {
   if(!base || !fs.existsSync(base) || !fs.statSync(base).isDirectory()) {
-    throw util.format('Invalid directory: %s', base.magenta);
+    throw util.format('Invalid directory: "%s"', base.magenta);
   }
   this.base = base;
-  this.paths = loadPaths(base);
-};
+  var recipePath = path.resolve(this.base, 'recipe.js');
+  var recipe;
+  try {
+    recipe = require(recipePath);
+  } catch(e) {
+    throw util.format('Missing recipe: "%s"', recipePath);
+  }
+  this.recipe = new butil.Recipe(this.base, recipe).validate();
+}
 
 util.inherits(Biscuit, events.EventEmitter);
 
 Biscuit.prototype.pidFile = function() {
-  return path.resolve(this.paths.VAR, 'oven.pid');
+  return path.resolve(this.recipe.var, 'oven.pid');
 };
 
 Biscuit.prototype.pid = function(pid) {
@@ -60,6 +34,10 @@ Biscuit.prototype.pid = function(pid) {
     fs.writeFileSync(file, pid);
   }
   return fs.existsSync(file) && fs.readFileSync(file).toString();
+};
+
+Biscuit.prototype.removePidFile = function() {
+  fs.unlinkSync(this.pidFile());
 };
 
 Biscuit.prototype.isServerRunning = function() {
@@ -98,28 +76,19 @@ Biscuit.prototype.startServer = function(port) {
     // The error event occurs if we're unable to start the process
     // for some reason.
     p.on('error', function(err) {
-      fs.unlinkSync(getPidFilePath(src, paths));
+      this.removePidFile();
       started.reject(util.format(
-            'Error encountered while attempting to start Server : %s',
-            err
-          )
-        );
-    });
+          'Error encountered while attempting to start Server : %s', err));
+    }.bind(this));
 
     // If the process shutsdown unexpectadly, reject the promise.
     p.on('close', function(code, signal) {
-      fs.unlinkSync(getPidFilePath(src, paths));
-      started.reject(
-          util.format(
-            'Server unexpectantly shut down. Code: %s, Signal: %s',
-            code,
-            signal
-          )
-        );
-    });
+      this.removePidFile();
+      started.reject(util.format(
+        'Server unexpectantly shut down. Code: %s, Signal: %s', code, signal));
+    }.bind(this));
   } else {
-    started.reject(util.format('Server is already running with pid: %s',
-        this.pid()));
+    started.reject(util.format('Server is already running with pid: %s', this.pid()));
   }
   return started.promise;
 };
@@ -132,7 +101,7 @@ Biscuit.prototype.stopServer = function() {
     } catch(e) {
       stopped.reject(e);
     }
-    fs.unlinkSync(this.pidFile());
+    this.removePidFile();
     stopped.resolve('Server stopped.');
   } else {
     stopped.reject('Server isn\'t running');
