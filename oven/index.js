@@ -1,102 +1,97 @@
-#!/usr/bin/env node
-var express = require('express');
-var util = require('util');
 var q = require('q');
-var path = require('path');
-var colors = require('colors');
 var fs = require('fs');
-var handlebars = require('express-handlebars');
+var path = require('path');
+var util = require('util');
+var cp = require('child_process');
 
-var Biscuit = require('../biscuit');
+function Oven(biscuit) {
+  this.biscuit = biscuit;
+};
 
-// This script takes two arguments, the path to biscuit and the port on which
-// to bind the HTTP server.
-// ie:
-// node server/oven scaffold/src 8080
-var port = process.argv.pop();
-var src = process.argv.pop();
+Oven.prototype.pidFile = function() {
+  return path.resolve(this.biscuit.paths.var, 'oven.pid');
+};
 
-if(!port) {
-  console.error(util.format('Invalid port: %s', port).red);
-  process.exit(1);
-  return;
-}
+Oven.prototype.pid = function(pid) {
+  var file = this.pidFile();
+  if(typeof pid !== 'undefined' && !this.isRunning()) {
+    fs.writeFileSync(file, pid);
+  }
+  return fs.existsSync(file) && fs.readFileSync(file).toString();
+};
 
-try {
-  var biscuit = new Biscuit(src);
-} catch(e) {
-  console.error(e.toString().red);
-  process.exit(1);
-  return;
-}
+Oven.prototype.removePidFile = function() {
+  fs.unlinkSync(this.pidFile());
+};
 
-var app = express();
+Oven.prototype.isRunning = function() {
+  var pid = this.pid();
+  if(!pid) {
+    return false;
+  }
+  // Send signal 0 to the pid, which doesn't try to kill it.  Instead, if
+  // this fails it'll throw an exception meaning the process doesn't
+  // exist.
+  try {
+    return process.kill(pid, 0);
+  } catch(e) {
+    return e.code === 'EPERM';
+  }
+};
 
-app.set('views', __dirname + '/views');
-app.engine(
-    'handlebars',
-    handlebars({
-      defaultLayout: 'main',
-      layoutsDir: app.get('views') + '/layouts'
-    })
-  );
-app.set('view engine', 'handlebars');
+Oven.prototype.start = function(port) {
+  var started = q.defer();
+  if(!this.isRunning()) {
+    // Spawn the "oven" (our http server)
+    var p = cp.fork(path.resolve(__dirname, 'server.js'),
+        [ this.biscuit.base, port ]);
 
-// Trigger a build whenever something changes in the source directory.
-// You're right, gulp could just handle this, but then there'd be no awareness
-// from the server's perspective of whether things are building, nor the ability
-// to capture errors.
-// TODO(samskjonsberg): We *could* put something in our gulp file that outputs a file in
-// var/ called build-status or something akin to that, and instead read from that
-// and accordingly understand the state of the build. I'd like to discuss this
-// with @markschaake and figure out what's best.
-fs.watch(biscuit.paths.src, function(event, filename) {
-  biscuit.bake();
-});
+    // Write the pid out to a pid file
+    this.pid(p.pid);
 
-// Always trigger a bake when the server starts just in case things have changed
-// while the server wasn't running.
-biscuit.bake();
-
-function renderBuildError(response) {
-  response.render('error', {
-      title: 'Build Error',
-      error: biscuit.error
+    // Wait for the SERVER_STARTED message from the child process, which
+    // indicates the server is up and running.
+    p.on('message', function(m) {
+      if(m === 'SERVER_STARTED') {
+        started.resolve();
+      }
     });
-}
 
-app.use(function(request, response, next) {
-  switch(biscuit.status()) {
-    case Biscuit.Status.BAKING:
-      var success = function() {
-        biscuit.removeListener(Biscuit.Event.BAKING_ERROR, failed);
-        next();
-      };
-      var failed = function() {
-        biscuit.removeListener(Biscuit.Event.BAKING_SUCCESS, success);
-        renderBuildError(response);
-      };
-      biscuit.once(Biscuit.Event.BAKING_SUCCESS, success);
-      biscuit.once(Biscuit.Event.BAKING_ERROR, failed);
-      break;
-    case Biscuit.Status.LAST_BAKE_FAILED:
-      renderBuildError(response);
-      break;
-    default:
-      next();
+    // The error event occurs if we're unable to start the process
+    // for some reason.
+    p.on('error', function(err) {
+      this.removePidFile();
+      started.reject(util.format(
+          'Error encountered while attempting to start Server : %s', err));
+    }.bind(this));
+
+    // If the process shutsdown unexpectadly, reject the promise.
+    p.on('close', function(code, signal) {
+      this.removePidFile();
+      started.reject(util.format(
+        'Server unexpectantly shut down. Code: %s, Signal: %s', code, signal));
+    }.bind(this));
+  } else {
+    started.reject(util.format('Server is already running with pid: %s', this.pid()));
   }
-});
+  return started.promise;
+};
 
-app.use(express.static(biscuit.paths.build));
-
-app.listen(port, function() {
-  console.log(
-      util.format('%s server started\nSource: %s\nBuild: %s\nPort: %s',
-        'Biscuit'.cyan, biscuit.paths.src.magenta, biscuit.paths.build.magenta,
-        port.green
-      )
-    );
-  if(typeof process.send === 'function') {
-    process.send('SERVER_STARTED');
+Oven.prototype.stop = function() {
+  var stopped = q.defer();
+  if(this.isRunning()) {
+    try {
+      process.kill(this.pid(), 'SIGTERM');
+    } catch(e) {
+      stopped.reject(e);
+    }
+    this.removePidFile();
+    stopped.resolve('Server stopped.');
+  } else {
+    stopped.reject('Server isn\'t running');
   }
-});
+  return stopped.promise;
+};
+
+
+module.exports = Oven;

@@ -4,6 +4,7 @@ var q = require('q');
 var ncp = require('ncp');
 
 var Biscuit = require('./biscuit');
+var Oven = require('./oven');
 
 var Paths = {
   SCAFFOLD : __dirname + '/scaffold'
@@ -50,15 +51,17 @@ module.exports = {
   },
 
   startServer: function(src, port) {
-    return new Biscuit(src || process.cwd()).startServer(port || DEFAULT_PORT);
+    var o = new Oven(new Biscuit(src || process.cwd()));
+    return o.start(port || DEFAULT_PORT);
   },
 
   stopServer: function(src) {
-    return new Biscuit(src || process.cwd()).stopServer();
+    var o = new Oven(new Biscuit(src || process.cwd()));
+    return o.stop();
   },
 
   restartServer: function(src, port) {
-    var b = new Biscuit(src);
+    var o = new Oven(new Biscuit(src || process.cwd()));
     return b.stopServer().then(
       function(msg) {
         console.log(msg);
