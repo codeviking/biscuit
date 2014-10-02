@@ -5,7 +5,17 @@ var path = require('path');
 var rimraf = require('rimraf');
 var cp = require('child_process');
 var butil = require('biscuit-util');
+var events = require('events');
 
+/**
+ * Loads the paths definition for a biscuit project at the specified src path.
+ *
+ * TODO(samskjonsberg) This could be consolidated to biscuit-util as a generic object,
+ * BiscuitPaths or BiscuitRecipe.  The object could also include an inherit
+ * validation mechanism so that the code doesn't have to live here.
+ *
+ * @returns {object} The biscuit paths definition.
+ */
 function loadPaths(src) {
   var pathsFile = path.resolve(src, 'paths.js');
 
@@ -37,6 +47,8 @@ function Biscuit(base) {
   this.base = base;
   this.paths = loadPaths(base);
 };
+
+util.inherits(Biscuit, events.EventEmitter);
 
 Biscuit.prototype.pidFile = function() {
   return path.resolve(this.paths.VAR, 'oven.pid');
@@ -128,18 +140,39 @@ Biscuit.prototype.stopServer = function() {
   return stopped.promise;
 };
 
-Biscuit.prototype.isBaking = function() {
-  return this.baking && this.baking.promise && this.baking.promise.isPending();
+Biscuit.prototype.status = function() {
+  var status = Biscuit.Status.LAST_BAKE_SUCCESSFUL;
+  if(this.baking && this.baking.promise && this.baking.promise.isPending()) {
+    status = Biscuit.Status.BAKING;
+  } else if(this.error) {
+    status = Biscuit.Status.LAST_BAKE_FAILED;
+  }
+  return status;
 };
 
 Biscuit.prototype.bake = function() {
-  if(!this.isBaking()) {
+  if(this.status() !== Biscuit.Status.BAKING) {
+    this.emit(Biscuit.Event.BAKING, this);
     this.baking = q.defer();
+    this.error = undefined;
+
+    this.baking.promise.then(
+      function() {
+        this.emit.apply(this, [ Biscuit.Event.BAKING_SUCCESS ].concat(
+            Array.prototype.slice.apply(arguments)));
+        return this.baking.promise;
+      }.bind(this),
+      function() {
+        this.emit.apply(this, [ Biscuit.Event.BAKING_ERROR ].concat(
+            Array.prototype.slice.apply(arguments)));
+        return this.baking.promise;
+      }.bind(this));
+
     var g = cp.spawn('gulp', [ '--baking' ], { cwd: this.base });
 
-    var err = '';
+    var error = '';
     g.stderr.on('data', function(d) {
-      err += d;
+      error += d;
     });
 
     g.on('error', function(e) {
@@ -153,17 +186,32 @@ Biscuit.prototype.bake = function() {
     }.bind(this));
 
     g.on('close', function() {
-      if(err) {
+      if(error) {
         try {
-          err = new butil.GulpTaskError(JSON.parse(err));
+          error = new butil.GulpTaskError(JSON.parse(error));
         } catch(e) {}
-        this.baking.reject(err);
+        this.error = error;
+        this.baking.reject(error);
       } else {
-        this.baking.resolve()
+        this.baking.resolve();
       }
     }.bind(this));
   }
   return this.baking.promise;
 };
+
+Biscuit.Event = {
+  BAKING: 'baking',
+  BAKING_SUCCESS: 'baking-success',
+  BAKING_ERROR: 'baking-error'
+};
+Object.freeze(Biscuit.Event);
+
+Biscuit.Status = {
+  BAKING: 'baking',
+  LAST_BAKE_SUCCESSFUL: 'last-bake-successful',
+  LAST_BAKE_FAILED: 'last-bake-failed'
+};
+Object.freeze(Biscuit.Status);
 
 module.exports = Biscuit;

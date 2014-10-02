@@ -4,7 +4,6 @@ var util = require('util');
 var q = require('q');
 var path = require('path');
 var colors = require('colors');
-var cookieParser = require('cookie-parser');
 var fs = require('fs');
 var handlebars = require('express-handlebars');
 
@@ -45,34 +44,48 @@ app.engine(
   );
 app.set('view engine', 'handlebars');
 
-app.use(cookieParser());
+// Trigger a build whenever something changes in the source directory.
+// You're right, gulp could just handle this, but then there'd be no awareness
+// from the server's perspective of whether things are building, nor the ability
+// to capture errors.
+// TODO(samskjonsberg): We *could* put something in our gulp file that outputs a file in
+// var/ called build-status or something akin to that, and instead read from that
+// and accordingly understand the state of the build. I'd like to discuss this
+// with @markschaake and figure out what's best.
+fs.watch(biscuit.paths.SRC, function(event, filename) {
+  biscuit.bake();
+});
+
+// Always trigger a bake when the server starts just in case things have changed
+// while the server wasn't running.
+biscuit.bake();
+
+function renderBuildError(response) {
+  response.render('error', {
+      title: 'Build Error',
+      error: biscuit.error
+    });
+}
 
 app.use(function(request, response, next) {
-  //
-  // Only trigger a build on a request for the index.  If we're currently
-  // building wait for the resolution of the current build before returning
-  // anything.
-  //
-  // This is designed to prevent requests for the js files, assets and other
-  // static resources from triggering repetative builds when really only
-  // one is necessary with each render cycle.
-  //
-  // TODO: There might be a more elegant way to solve this.
-  //
-  if(request.path === '/' || biscuit.isBaking()) {
-    biscuit.bake().then(
-      function() {
+  switch(biscuit.status()) {
+    case Biscuit.Status.BAKING:
+      var success = function() {
+        biscuit.removeListener(Biscuit.Event.BAKING_FAILED, failed);
         next();
-      },
-      function(error) {
-        response.render('error', {
-            title: 'Gulp Build Error',
-            error: error
-          });
-      }
-    );
-  } else {
-    next();
+      };
+      var failed = function() {
+        biscuit.removeListener(Biscuit.Event.BAKING_SUCCESS, success);
+        renderBuildError(response);
+      };
+      biscuit.once(Biscuit.Event.BAKING_SUCCESS, success);
+      biscuit.once(Biscuit.Event.BAKING_FAILED, failed);
+      break;
+    case Biscuit.Status.LAST_BAKE_FAILED:
+      renderBuildError(response);
+      break;
+    default:
+      next();
   }
 });
 
