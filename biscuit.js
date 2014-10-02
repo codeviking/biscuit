@@ -12,20 +12,20 @@ function Biscuit(base) {
     throw util.format('Invalid directory: "%s"', base.magenta);
   }
   this.base = base;
-  var recipePath = path.resolve(this.base, 'recipe.js');
-  var recipe;
+  var pathsPath = path.resolve(this.base, 'paths.js');
+  var paths;
   try {
-    recipe = require(recipePath);
+    paths = require(pathsPath);
   } catch(e) {
-    throw util.format('Missing recipe: "%s"', recipePath);
+    throw util.format('Missing paths: "%s"', pathsPath);
   }
-  this.recipe = new butil.Recipe(this.base, recipe).validate();
+  this.paths = new butil.Paths(this.base, paths).validate();
 }
 
 util.inherits(Biscuit, events.EventEmitter);
 
 Biscuit.prototype.pidFile = function() {
-  return path.resolve(this.recipe.var, 'oven.pid');
+  return path.resolve(this.paths.var, 'oven.pid');
 };
 
 Biscuit.prototype.pid = function(pid) {

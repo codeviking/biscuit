@@ -50,7 +50,7 @@ app.set('view engine', 'handlebars');
 // var/ called build-status or something akin to that, and instead read from that
 // and accordingly understand the state of the build. I'd like to discuss this
 // with @markschaake and figure out what's best.
-fs.watch(biscuit.recipe.src, function(event, filename) {
+fs.watch(biscuit.paths.src, function(event, filename) {
   biscuit.bake();
 });
 
@@ -87,12 +87,12 @@ app.use(function(request, response, next) {
   }
 });
 
-app.use(express.static(biscuit.recipe.build));
+app.use(express.static(biscuit.paths.build));
 
 app.listen(port, function() {
   console.log(
       util.format('%s server started\nSource: %s\nBuild: %s\nPort: %s',
-        'Biscuit'.cyan, biscuit.recipe.src.magenta, biscuit.recipe.build.magenta,
+        'Biscuit'.cyan, biscuit.paths.src.magenta, biscuit.paths.build.magenta,
         port.green
       )
     );
