@@ -1,7 +1,7 @@
 <h1>{{title}}</h1>
 <h2>{{error.message}}</h2>
 <dl>
-  {{error.task}}
+  {{#error.task}}
     <dt>Gulp Task:</dt>
     <dd>{{.}}</dd>
   {{/error.task}}

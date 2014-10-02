@@ -69,7 +69,7 @@ app.use(function(request, response, next) {
   switch(biscuit.status()) {
     case Biscuit.Status.BAKING:
       var success = function() {
-        biscuit.removeListener(Biscuit.Event.BAKING_FAILED, failed);
+        biscuit.removeListener(Biscuit.Event.BAKING_ERROR, failed);
         next();
       };
       var failed = function() {
@@ -77,7 +77,7 @@ app.use(function(request, response, next) {
         renderBuildError(response);
       };
       biscuit.once(Biscuit.Event.BAKING_SUCCESS, success);
-      biscuit.once(Biscuit.Event.BAKING_FAILED, failed);
+      biscuit.once(Biscuit.Event.BAKING_ERROR, failed);
       break;
     case Biscuit.Status.LAST_BAKE_FAILED:
       renderBuildError(response);

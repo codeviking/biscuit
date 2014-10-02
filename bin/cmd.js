@@ -32,6 +32,10 @@ switch(command) {
     action = biscuit.stopServer;
     actionArgs = args._.slice(3);
     break;
+  case 'restart-server':
+    action = biscuit.restartServer;
+    actionArgs = args._.slice(3);
+    break;
 }
 
 if(action && actionArgs) {

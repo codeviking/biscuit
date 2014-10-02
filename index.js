@@ -10,6 +10,8 @@ var Paths = {
 };
 Object.freeze(Paths);
 
+var DEFAULT_PORT = 4000;
+
 module.exports = {
 
   /**
@@ -48,11 +50,21 @@ module.exports = {
   },
 
   startServer: function(src, port) {
-    return new Biscuit(src || process.cwd()).startServer(port || 4000);
+    return new Biscuit(src || process.cwd()).startServer(port || DEFAULT_PORT);
   },
 
   stopServer: function(src) {
     return new Biscuit(src || process.cwd()).stopServer();
+  },
+
+  restartServer: function(src, port) {
+    var b = new Biscuit(src);
+    return b.stopServer().then(
+      function(msg) {
+        console.log(msg);
+        b.startServer(port || DEFAULT_PORT);
+      }
+    );
   }
 
 }
