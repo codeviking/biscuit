@@ -1,7 +1,7 @@
 {
   "name": "flapjack",
   "description": "An API for generating a simple scaffolding for javascript powered web-applications and simple http server which executes a gulp build when necessary and reports errors to the developer in a friendly format.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "bin": "bin/cmd.js",
   "repository": "/allenai/flapjack.git",
   "keywords": [
@@ -26,6 +26,7 @@
     "decompress-zip": "0.0.8",
     "express": "^4.8.8",
     "express-handlebars": "^1.1.0",
+    "flapjack-util": "^0.2.0",
     "gulp": "^3.8.7",
     "minimist": "^1.1.0",
     "ncp": "^0.6.0",
