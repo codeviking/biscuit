@@ -18,7 +18,17 @@ function Flapjack(base) {
   } catch(e) {
     throw util.format('Missing paths: "%s"', pathsPath);
   }
-  this.paths = new futil.Paths(this.base, paths).validate();
+  this.paths = new futil.Paths(this.base, paths);
+
+  // If the build and var directories don't exist, create them
+  if(!fs.existsSync(this.paths.build)) {
+    fs.mkdirSync(this.paths.build);
+  }
+  if(!fs.existsSync(this.paths.var)) {
+    fs.mkdirSync(this.paths.var);
+  }
+
+  this.paths.validate();
 }
 
 util.inherits(Flapjack, events.EventEmitter);
