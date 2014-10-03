@@ -24,7 +24,7 @@ function Flapjack(base) {
 util.inherits(Flapjack, events.EventEmitter);
 
 Flapjack.prototype.status = function() {
-  var status = Flapjack.Status.LAST_BUILD_SUCCESSFULFUL;
+  var status = Flapjack.Status.LAST_BUILD_SUCCESSFUL;
   if(this.building && this.building.promise && this.building.promise.isPending()) {
     status = Flapjack.Status.BUILDING;
   } else if(this.error) {
@@ -51,7 +51,7 @@ Flapjack.prototype.build = function() {
         return this.building.promise;
       }.bind(this));
 
-    var g = cp.spawn('gulp', [ '--building' ], { cwd: this.base });
+    var g = cp.spawn('gulp', [ '--flapjack' ], { cwd: this.base });
 
     var error = '';
     g.stderr.on('data', function(d) {
@@ -85,14 +85,14 @@ Flapjack.prototype.build = function() {
 
 Flapjack.Event = {
   BUILDING: 'building',
-  BUILD_SUCCESSFUL: 'building-successful',
-  BUILD_FAILED: 'building-failed'
+  BUILD_SUCCESSFUL: 'build-successful',
+  BUILD_FAILED: 'build-failed'
 };
 Object.freeze(Flapjack.Event);
 
 Flapjack.Status = {
   BUILDING: 'building',
-  LAST_BUILD_SUCCESSFULFUL: 'last-build-successful',
+  LAST_BUILD_SUCCESSFUL: 'last-build-successful',
   LAST_BUILD_FAILED: 'last-build-failed'
 };
 Object.freeze(Flapjack.Status);

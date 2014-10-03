@@ -4,15 +4,15 @@ var path = require('path');
 var util = require('util');
 var cp = require('child_process');
 
-function Stove(flapjack) {
+function Skillet(flapjack) {
   this.flapjack = flapjack;
 };
 
-Stove.prototype.pidFile = function() {
-  return path.resolve(this.flapjack.paths.var, 'oven.pid');
+Skillet.prototype.pidFile = function() {
+  return path.resolve(this.flapjack.paths.var, 'stove.pid');
 };
 
-Stove.prototype.pid = function(pid) {
+Skillet.prototype.pid = function(pid) {
   var file = this.pidFile();
   if(typeof pid !== 'undefined' && !this.isRunning()) {
     fs.writeFileSync(file, pid);
@@ -20,11 +20,11 @@ Stove.prototype.pid = function(pid) {
   return fs.existsSync(file) && fs.readFileSync(file).toString();
 };
 
-Stove.prototype.removePidFile = function() {
+Skillet.prototype.removePidFile = function() {
   fs.unlinkSync(this.pidFile());
 };
 
-Stove.prototype.isRunning = function() {
+Skillet.prototype.isRunning = function() {
   var pid = this.pid();
   if(!pid) {
     return false;
@@ -39,7 +39,7 @@ Stove.prototype.isRunning = function() {
   }
 };
 
-Stove.prototype.start = function(port) {
+Skillet.prototype.start = function(port) {
   var started = q.defer();
   if(!this.isRunning()) {
     // Spawn the "oven" (our http server)
@@ -77,7 +77,7 @@ Stove.prototype.start = function(port) {
   return started.promise;
 };
 
-Stove.prototype.stop = function() {
+Skillet.prototype.stop = function() {
   var stopped = q.defer();
   if(this.isRunning()) {
     try {
@@ -94,4 +94,4 @@ Stove.prototype.stop = function() {
 };
 
 
-module.exports = Stove;
+module.exports = Skillet;

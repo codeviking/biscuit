@@ -10,7 +10,7 @@ var DecompressZip = require('decompress-zip');
 var rimraf = require('rimraf');
 
 var Flapjack = require('./flapjack');
-var Stove = require('./stove');
+var Skillet = require('./skillet');
 
 const DEFAULT_PORT = 4000;
 const REGEXP_ABS_URL = /^https?:\/\//i;
@@ -150,7 +150,7 @@ module.exports = {
    * @returns {object}  A deferred promise which is resolved once the server is running.
    */
   startServer: function(src, port) {
-    var o = new Stove(new Flapjack(src || process.cwd()));
+    var o = new Skillet(new Flapjack(src || process.cwd()));
     return o.start(port || DEFAULT_PORT);
   },
   /**
@@ -162,8 +162,8 @@ module.exports = {
    * @returns {object}  A deferred promise which is resolved once the server is stopped.
    */
   stopServer: function(src) {
-    var o = new Stove(new Flapjack(src || process.cwd()));
-    return o.stop();
+    var s = new Skillet(new Flapjack(src || process.cwd()));
+    return s.stop();
   },
   /**
    * Restarts a Flapjack HTTP server attached to the specified directory.
@@ -175,11 +175,11 @@ module.exports = {
    * @returns {object}   A deferred promise which is resolved once the server is restarted.
    */
   restartServer: function(src, port) {
-    var o = new Stove(new Flapjack(src || process.cwd()));
-    return b.stopServer().then(
+    var s = new Skillet(new Flapjack(src || process.cwd()));
+    return s.stop().then(
       function(msg) {
         console.log(msg);
-        b.startServer(port || DEFAULT_PORT);
+        s.start(port || DEFAULT_PORT);
       }
     );
   }
