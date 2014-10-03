@@ -1,41 +1,8 @@
-var fs = require('fs');
-var util = require('util');
-var q = require('q');
-var path = require('path');
-var colors = require('colors');
-var ncp = require('ncp');
-var cp = require('child_process');
-var request = require('request');
-var DecompressZip = require('decompress-zip');
-var rimraf = require('rimraf');
-
 var Flapjack = require('./flapjack');
 var Skillet = require('./skillet');
+var chef = require('./chef');
 
 const DEFAULT_PORT = 4000;
-const REGEXP_ABS_URL = /^https?:\/\//i;
-const GITHUB_HOST = 'https://github.com';
-const GITHUB_ARCHIVE = 'archive/master.zip';
-// TODO: Figure out if there's a way to derive the environment appropriate
-// equivalent of /tmp.
-const TMP_DIR = '/tmp';
-
-/**
- * Convert the specified url to the appropriate github archive url.
- *
- * @returns {string} The github archive url.
- */
-function githubArchiveUrl(url) {
-  if(typeof url !== 'string') {
-    throw 'Url must be a string';
-  }
-  var u = [ GITHUB_HOST , url ].join(url.substr(0, 1) !== '/' ? '/' : '');
-  var len = u.length;
-  if(u.substr(len - GITHUB_ARCHIVE.length) !== GITHUB_ARCHIVE) {
-    u = [ u, GITHUB_ARCHIVE ].join(u.substr(len - 1) !== '/' ? '/' : '');
-  }
-  return u;
-}
 
 module.exports = {
   /**
@@ -58,88 +25,7 @@ module.exports = {
    * @returns {object}  A deferred promise which is resolved once generation is complete.
    */
   generate: function(url, dest) {
-    var generated = q.defer();
-
-    if(typeof url !== 'string') {
-      throw util.format('Invalid recipe url: "%s"', url);
-    }
-
-    if(!REGEXP_ABS_URL.test(url)) {
-      url = githubArchiveUrl(url);
-    }
-
-    if(!dest) {
-      dest = process.cwd();
-    }
-
-    dest = path.resolve(dest);
-
-    if(!fs.existsSync(dest) || !fs.statSync(dest).isDirectory()) {
-      throw util.format('Invalid destination: "%s"', dest);
-    }
-
-    var archive = path.resolve(TMP_DIR, Date.now() + '-archive.zip');
-
-    var ws = fs.createWriteStream(archive);
-
-    // TODO:
-    // This is callback SOUP
-    // Figure out End of Directory Error... (zip archive issue)
-    console.log(util.format('Downloading "%s"', url));
-    request.get(url, function(err, res, body) {
-        if(err || res.statusCode !== 200) {
-          fs.unlinkSync(archive);
-          if(!err) {
-            err = util.format('Invalid recipe url: "%s"', url);
-          }
-          generated.reject(err || res.statusText);
-        } else {
-          var unzipper = new DecompressZip(archive);
-
-          unzipper.on('error', function(e) {
-            generated.reject(e);
-            fs.unlinkSync(archive);
-          });
-
-          unzipper.on('extract', function(log) {
-            fs.unlinkSync(archive);
-            if(log.length > 0) {
-              var parent = log.shift();
-              if(parent.folder) {
-                var from = path.resolve(TMP_DIR, parent.folder);
-                console.log('Archive extracted, copying "%s" to "%s"...', from, dest);
-                ncp(from, dest, function(err) {
-                  rimraf(from, function() {
-                    if(err) {
-                      generated.reject(err);
-                    } else {
-                      console.log('Installing dependencies...');
-                      cp.spawn('npm', ['install'], { cwd: dest, stdio: 'inherit' })
-                        .on('error', function(err) {
-                          generated.reject(err);
-                        })
-                        .on('close', function() {
-                          generated.resolve();
-                        });
-                    }
-                  });
-                });
-              } else {
-                generated.reject('Unexpected archive format.');
-                rimraf(path.resolve(TMP_DIR, '**', '*'),
-                    generated.reject.bind(generated, 'Invalid recipe.'));
-              }
-            }
-          });
-
-          console.log(util.format('Download complete, unarchiving "%s"', archive));
-          unzipper.extract({
-            path: TMP_DIR
-          });
-        }
-      }).pipe(ws);
-
-    return generated.promise;
+    return chef.generate(url, dest);
   },
   /**
    * Starts a new Flapjack HTTP server attached to the specified directory

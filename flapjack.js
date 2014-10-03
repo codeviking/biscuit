@@ -61,6 +61,8 @@ Flapjack.prototype.build = function() {
         return this.building.promise;
       }.bind(this));
 
+    // TODO: refactor to use fork, and use process.send to send error
+    // information back to this process in a non-chunked form.
     var g = cp.spawn('gulp', [ '--flapjack' ], { cwd: this.base });
 
     var error = '';
