@@ -12,7 +12,7 @@ var rimraf = require('rimraf');
 var Biscuit = require('./biscuit');
 var Oven = require('./oven');
 
-const DEFAULT_PORT = 80;
+const DEFAULT_PORT = 4000;
 const REGEXP_ABS_URL = /^https?:\/\//i;
 const GITHUB_HOST = 'https://github.com';
 const GITHUB_ARCHIVE = 'archive/master.zip';
