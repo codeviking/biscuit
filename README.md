@@ -1,35 +1,53 @@
 biscuit
 =======
 
-A scrumptious serving of HTML, CSS and Javascript designed to make developing a web UI as easy as possible.
+An API for generating simple scaffolding for a Javascript powered web-application and simple Http server which executes a [gulp](http://gulpjs.com) build when necessary and reports errors
+to the developer in a friendly format.
 
-## API
+## Installation
 
-* [`biscuit generate`](#generate)
-* [`biscuit start-server`](#start-server)
-* [`biscuit stop-server`](#stop-server)
-* [`biscuit update`](#update)
+Install via `npm`:
 
-### <a name="generate"></a> `biscuit generate [DIRECTORY] [NAME]` (~ Unstable)
+```
+npm install biscuit
+```
 
-Generates a new project named `NAMED` in the specified `DIRECTORY`.  If `DIRECTORY` isn't specified, defaults to the current working directory.  If `NAME` isn't specified, `"A Tasty Biscuit"` is used instead.
+## Usage
 
-Supported Options:
+### Generating a new Project
 
-* `--clobber`: If specified existing directories and files matching those output by `generate` will be overwritten.
+```
+biscuit generate URL TARGET
+```
 
-### <a name="start-server"></a> `biscuit start-server DIRECTORY [PORT]` (~ Unstable)
+### Starting the Http Server
 
-Starts a new oven instance (a simple HTTP server which performs on-demand Biscuit compilation) at the specified `DIRECTORY` and `PORT`.  If not specified, `PORT` defaults to *4040*.
+```
+biscuit start-server TARGET [PORT]
+```
 
-### <a name="stop-server"></a> `biscuit stop-server DIRECTORY` (~ Unstable)
+### Stopping the Http Server
 
-Stops an oven instance serving files from the specified `DIRECTORY`.
+```
+biscuit stop-server TARGET [PORT]`
+```
 
-### <a name="update"></a> `biscuit update [DIRECTORY]` (~ Unimplemented)
+### Restarting the Http Server
 
-Updates biscuit files in the specified `DIRECTORY` or the current working directory if not specified.  Creates a backup of existing files in `.biscuit-backup`.
+```
+biscuit restart-server TARGET [PORT]
+```
 
-Supported Options:
+## What's Next
 
-* `--revert`: Reverts the last update, restoring files located in `.biscuit-backup`.
+1. Support for project-name on generate.
+2. Improved documentation.
+3. Improved test coverage.
+4. Creation of expanded recipe.
+5. Server flags to disable file watching and associated auto "baking.""
+
+
+
+
+
+
