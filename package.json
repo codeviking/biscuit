@@ -1,9 +1,15 @@
 {
   "name": "flapjack",
-  "description": "An API for generating a simple scaffolding for javascript powered web-applications and simple http server which executes a [gulp](http://gulpjs.com) build when necessary and reports errors to the developer in a friendly format.",
-  "version": "0.0.1",
+  "description": "An API for generating a simple scaffolding for javascript powered web-applications and simple http server which executes a gulp build when necessary and reports errors to the developer in a friendly format.",
+  "version": "0.0.2",
   "bin": "bin/cmd.js",
   "repository": "/allenai/flapjack.git",
+  "keywords": [
+    "flapjack",
+    "gulp",
+    "front-end",
+    "http server"
+  ],
   "contributors": [
     {
       "name": "Sam Skjonsberg",
