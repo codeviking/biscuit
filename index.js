@@ -16,7 +16,7 @@ const DEFAULT_PORT = 4000;
 const REGEXP_ABS_URL = /^https?:\/\//i;
 const GITHUB_HOST = 'https://github.com';
 const GITHUB_ARCHIVE = 'archive/master.zip';
-const ARTIFACT = path.resolve('artifact');
+const ARTIFACT = path.resolve(__dirname, 'artifact');
 
 /**
  * Convert the specified url to the appropriate github archive url.
