@@ -9,7 +9,7 @@ to the developer in a friendly format.
 Install via `npm`:
 
 ```
-npm install biscuit
+npm install -g biscuit
 ```
 
 ## Usage
