@@ -1,7 +1,7 @@
 flapjack
 =======
 
-An API for generating simple scaffolding for a Javascript powered web-application and simple Http server which executes a [gulp](http://gulpjs.com) build when necessary and reports errors
+An API for generating a simple scaffolding for javascript powered web-applications and simple http server which executes a [gulp](http://gulpjs.com) build when necessary and reports errors
 to the developer in a friendly format.
 
 ## Installation
@@ -44,4 +44,4 @@ flapjack restart-server TARGET [PORT]
 2. Improved documentation.
 3. Improved test coverage.
 4. Creation of expanded recipe.
-5. Server flags to disable file watching and associated auto "baking."  Effectively making the biscuit server something which could be effective in a production enviornment.
+5. Server flags to disable file watching and associated auto "baking."  Effectively making the flapjack server something which could be effective in a production enviornment.

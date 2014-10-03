@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-var biscuit = require('../');
+var flapjack = require('../');
 var fs = require('fs');
 var colors = require('colors');
 var minimist = require('minimist');
@@ -24,26 +24,26 @@ var actionArgs;
 // and attempt o call on the specified.
 switch(command) {
   case 'generate':
-    action = biscuit.generate;
+    action = flapjack.generate;
     actionArgs = args._.slice(3);
     break;
   case 'start-server':
-    action = biscuit.startServer;
+    action = flapjack.startServer;
     actionArgs = args._.slice(3);
     break;
   case 'stop-server':
-    action = biscuit.stopServer;
+    action = flapjack.stopServer;
     actionArgs = args._.slice(3);
     break;
   case 'restart-server':
-    action = biscuit.restartServer;
+    action = flapjack.restartServer;
     actionArgs = args._.slice(3);
     break;
 }
 
 if(action && actionArgs) {
   try {
-    action.apply(biscuit, actionArgs).then(
+    action.apply(flapjack, actionArgs).then(
       function(message) {
         if(message) {
           console.log('Success: '.green + message);

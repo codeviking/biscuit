@@ -1,6 +1,6 @@
-biscuit
+flapjack
 
-Usage: biscuit [OPTION]... COMMAND
+Usage: flapjack [OPTION]... COMMAND
 
 Options:
 

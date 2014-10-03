@@ -1,9 +1,9 @@
 {
-  "name": "biscuit",
-  "description": "A scrumptious serving of HTML, CSS and Javascript designed to make developing a web UI as easy as possible.",
+  "name": "flapjack",
+  "description": "An API for generating a simple scaffolding for javascript powered web-applications and simple http server which executes a [gulp](http://gulpjs.com) build when necessary and reports errors to the developer in a friendly format.",
   "version": "0.0.1",
   "bin": "bin/cmd.js",
-  "repository": "/allenai/biscuit.git",
+  "repository": "/allenai/flapjack.git",
   "contributors": [
     {
       "name": "Sam Skjonsberg",
@@ -31,6 +31,7 @@
     "test": "gulp test"
   },
   "devDependencies": {
+    "flapjack-util": "^0.2.0",
     "gulp-mocha": "^1.0.0",
     "gulp-rimraf": "^0.1.0"
   },

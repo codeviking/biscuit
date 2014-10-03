@@ -4,12 +4,12 @@ var path = require('path');
 var util = require('util');
 var cp = require('child_process');
 
-function Stove(biscuit) {
-  this.biscuit = biscuit;
+function Stove(flapjack) {
+  this.flapjack = flapjack;
 };
 
 Stove.prototype.pidFile = function() {
-  return path.resolve(this.biscuit.paths.var, 'oven.pid');
+  return path.resolve(this.flapjack.paths.var, 'oven.pid');
 };
 
 Stove.prototype.pid = function(pid) {
@@ -44,7 +44,7 @@ Stove.prototype.start = function(port) {
   if(!this.isRunning()) {
     // Spawn the "oven" (our http server)
     var p = cp.fork(path.resolve(__dirname, 'server.js'),
-        [ this.biscuit.base, port ]);
+        [ this.flapjack.base, port ]);
 
     // Write the pid out to a pid file
     this.pid(p.pid);

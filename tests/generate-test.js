@@ -1,14 +1,14 @@
-var biscuit = require('../');
+var flapjack = require('../');
 var path = require('path');
 var fs = require('fs');
 var assert = require('assert');
 
 var TMP_PATH = path.resolve(__dirname,  '../tmp');
 
-describe('biscuit', function() {
-  describe('biscuit.generate', function() {
+describe('flapjack', function() {
+  describe('flapjack.generate', function() {
     it('generates a new project into the specified directory', function(done){
-      biscuit.generate(TMP_PATH)
+      flapjack.generate(TMP_PATH)
         .done(function() {
 
         });

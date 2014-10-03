@@ -40,10 +40,10 @@ module.exports = {
    * Generates a new project in the provided location from the specified recipe.
    *
    * @example
-   * biscuit generate allenai/angular-web.recipe
+   * flapjack generate allenai/angular-web.recipe
    *
    * @example
-   * biscuit generate https://github.com/allenai/angular-web.recipe/archive/master.zip
+   * flapjack generate https://github.com/allenai/angular-web.recipe/archive/master.zip
    *
    * @param   {string} url      The url on to a zip archive where the "recipe" is defined.
    *                            If the url doesn't being with http:// or https:// then
@@ -143,7 +143,7 @@ module.exports = {
    * Starts a new Flapjack HTTP server attached to the specified directory
    * and listening on the specified port.
    *
-   * @params  {string}  [src='.'] Path to the biscuit source code. Defaults to the current
+   * @params  {string}  [src='.'] Path to the flapjack source code. Defaults to the current
    *                              working directory if not specified.
    * @params  {number}  [port=80] The port to listen on.
    *
@@ -156,7 +156,7 @@ module.exports = {
   /**
    * Stops the Flapjack HTTP server attached to the specified directory.
    *
-   * @param   {string}  [src='.'] Path to the biscuit source code.  Defaults to the current
+   * @param   {string}  [src='.'] Path to the flapjack source code.  Defaults to the current
    *                            working directory if not specified.
    *
    * @returns {object}  A deferred promise which is resolved once the server is stopped.
@@ -168,7 +168,7 @@ module.exports = {
   /**
    * Restarts a Flapjack HTTP server attached to the specified directory.
    *
-   * @params  {string}   [src='.'] Path to the biscuit source code. Defaults to the current
+   * @params  {string}   [src='.'] Path to the flapjack source code. Defaults to the current
    *                              working directory if not specified.
    * @params  {number}   [port=80] The port to listen on.
    *
