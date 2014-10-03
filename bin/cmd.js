@@ -19,6 +19,9 @@ var command = args._.slice(2).shift();
 var action;
 var actionArgs;
 
+// TODO:
+// This could be dyanmic.  Take the command, camel-case
+// and attempt o call on the specified.
 switch(command) {
   case 'generate':
     action = biscuit.generate;
@@ -56,6 +59,9 @@ if(action && actionArgs) {
     );
   } catch(e) {
     console.error('Error: '.red + e.toString());
+    console.log();
+    usage();
+    process.exit(1);
   }
 } else {
   usage();

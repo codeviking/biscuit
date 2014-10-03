@@ -18,12 +18,14 @@
   "dependencies": {
     "biscuit-util": "^0.1.7",
     "colors": "^0.6.2",
+    "decompress-zip": "0.0.8",
     "express": "^4.8.8",
     "express-handlebars": "^1.1.0",
     "gulp": "^3.8.7",
     "minimist": "^1.1.0",
     "ncp": "^0.6.0",
     "q": "^1.0.1",
+    "request": "^2.44.0",
     "rimraf": "^2.2.8"
   },
   "scripts": {

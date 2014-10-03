@@ -2,5 +2,9 @@ biscuit
 
 Usage: biscuit [OPTION]... COMMAND
 
+Options:
+
+  --help, -h    Output usage information (this message)
+
 where COMMAND is one of:
   generate, start-server, stop-server

@@ -10,11 +10,7 @@ describe('biscuit', function() {
     it('generates a new project into the specified directory', function(done){
       biscuit.generate(TMP_PATH)
         .done(function() {
-          // TODO: Write a more advanced mechanism for comparing the contents of
-          // scaffold with this in TMP_PATH
-          // TODO: Look into why the mocha report of errors is so nasty
-          assert.notEqual(-1, fs.readdirSync(TMP_PATH).indexOf('src'), 'Directory not found.');
-          done();
+
         });
     });
   });
