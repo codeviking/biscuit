@@ -4,15 +4,15 @@ var path = require('path');
 var util = require('util');
 var cp = require('child_process');
 
-function Oven(biscuit) {
+function Stove(biscuit) {
   this.biscuit = biscuit;
 };
 
-Oven.prototype.pidFile = function() {
+Stove.prototype.pidFile = function() {
   return path.resolve(this.biscuit.paths.var, 'oven.pid');
 };
 
-Oven.prototype.pid = function(pid) {
+Stove.prototype.pid = function(pid) {
   var file = this.pidFile();
   if(typeof pid !== 'undefined' && !this.isRunning()) {
     fs.writeFileSync(file, pid);
@@ -20,11 +20,11 @@ Oven.prototype.pid = function(pid) {
   return fs.existsSync(file) && fs.readFileSync(file).toString();
 };
 
-Oven.prototype.removePidFile = function() {
+Stove.prototype.removePidFile = function() {
   fs.unlinkSync(this.pidFile());
 };
 
-Oven.prototype.isRunning = function() {
+Stove.prototype.isRunning = function() {
   var pid = this.pid();
   if(!pid) {
     return false;
@@ -39,7 +39,7 @@ Oven.prototype.isRunning = function() {
   }
 };
 
-Oven.prototype.start = function(port) {
+Stove.prototype.start = function(port) {
   var started = q.defer();
   if(!this.isRunning()) {
     // Spawn the "oven" (our http server)
@@ -77,7 +77,7 @@ Oven.prototype.start = function(port) {
   return started.promise;
 };
 
-Oven.prototype.stop = function() {
+Stove.prototype.stop = function() {
   var stopped = q.defer();
   if(this.isRunning()) {
     try {
@@ -94,4 +94,4 @@ Oven.prototype.stop = function() {
 };
 
 
-module.exports = Oven;
+module.exports = Stove;

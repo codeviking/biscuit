@@ -1,4 +1,4 @@
-biscuit
+flapjack
 =======
 
 An API for generating simple scaffolding for a Javascript powered web-application and simple Http server which executes a [gulp](http://gulpjs.com) build when necessary and reports errors
@@ -9,7 +9,7 @@ to the developer in a friendly format.
 Install via `npm`:
 
 ```
-npm install -g biscuit
+npm install -g flapjack
 ```
 
 ## Usage
@@ -17,25 +17,25 @@ npm install -g biscuit
 ### Generating a new Project
 
 ```
-biscuit generate URL TARGET
+flapjack generate URL TARGET
 ```
 
 ### Starting the Http Server
 
 ```
-biscuit start-server TARGET [PORT]
+flapjack start-server TARGET [PORT]
 ```
 
 ### Stopping the Http Server
 
 ```
-biscuit stop-server TARGET [PORT]`
+flapjack stop-server TARGET [PORT]`
 ```
 
 ### Restarting the Http Server
 
 ```
-biscuit restart-server TARGET [PORT]
+flapjack restart-server TARGET [PORT]
 ```
 
 ## What's Next
@@ -44,10 +44,4 @@ biscuit restart-server TARGET [PORT]
 2. Improved documentation.
 3. Improved test coverage.
 4. Creation of expanded recipe.
-5. Server flags to disable file watching and associated auto "baking.""
-
-
-
-
-
-
+5. Server flags to disable file watching and associated auto "baking."  Effectively making the biscuit server something which could be effective in a production enviornment.

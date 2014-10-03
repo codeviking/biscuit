@@ -7,9 +7,9 @@ var colors = require('colors');
 var fs = require('fs');
 var handlebars = require('express-handlebars');
 
-var Biscuit = require('../biscuit');
+var Flapjack = require('../flapjack');
 
-// This script takes two arguments, the path to biscuit and the port on which
+// This script takes two arguments, the path to flapjack and the port on which
 // to bind the HTTP server.
 // ie:
 // node server/oven scaffold/src 8080
@@ -23,7 +23,7 @@ if(!port) {
 }
 
 try {
-  var biscuit = new Biscuit(src);
+  var flapjack = new Flapjack(src);
 } catch(e) {
   console.error(e.toString().red);
   process.exit(1);
@@ -46,40 +46,36 @@ app.set('view engine', 'handlebars');
 // You're right, gulp could just handle this, but then there'd be no awareness
 // from the server's perspective of whether things are building, nor the ability
 // to capture errors.
-// TODO(samskjonsberg): We *could* put something in our gulp file that outputs a file in
-// var/ called build-status or something akin to that, and instead read from that
-// and accordingly understand the state of the build. I'd like to discuss this
-// with @markschaake and figure out what's best.
-fs.watch(biscuit.paths.src, function(event, filename) {
-  biscuit.bake();
+fs.watch(flapjack.paths.src, function(event, filename) {
+  flapjack.build();
 });
 
-// Always trigger a bake when the server starts just in case things have changed
+// Always trigger a build when the server starts just in case things have changed
 // while the server wasn't running.
-biscuit.bake();
+flapjack.build();
 
 function renderBuildError(response) {
   response.render('error', {
       title: 'Build Error',
-      error: biscuit.error
+      error: flapjack.error
     });
 }
 
 app.use(function(request, response, next) {
-  switch(biscuit.status()) {
-    case Biscuit.Status.BAKING:
+  switch(flapjack.status()) {
+    case Flapjack.Status.BUILDING:
       var success = function() {
-        biscuit.removeListener(Biscuit.Event.BAKING_ERROR, failed);
+        flapjack.removeListener(Flapjack.Event.BUILD_FAILED, failed);
         next();
       };
       var failed = function() {
-        biscuit.removeListener(Biscuit.Event.BAKING_SUCCESS, success);
+        flapjack.removeListener(Flapjack.Event.BUILD_SUCCESSFUL, success);
         renderBuildError(response);
       };
-      biscuit.once(Biscuit.Event.BAKING_SUCCESS, success);
-      biscuit.once(Biscuit.Event.BAKING_ERROR, failed);
+      flapjack.once(Flapjack.Event.BUILD_SUCCESSFUL, success);
+      flapjack.once(Flapjack.Event.BUILD_FAILED, failed);
       break;
-    case Biscuit.Status.LAST_BAKE_FAILED:
+    case Flapjack.Status.LAST_BUILD_FAILED:
       renderBuildError(response);
       break;
     default:
@@ -87,12 +83,12 @@ app.use(function(request, response, next) {
   }
 });
 
-app.use(express.static(biscuit.paths.build));
+app.use(express.static(flapjack.paths.build));
 
 app.listen(port, function() {
   console.log(
       util.format('%s server started\nSource: %s\nBuild: %s\nPort: %s',
-        'Biscuit'.cyan, biscuit.paths.src.magenta, biscuit.paths.build.magenta,
+        'Flapjack'.cyan, flapjack.paths.src.magenta, flapjack.paths.build.magenta,
         port.green
       )
     );

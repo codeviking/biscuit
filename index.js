@@ -9,8 +9,8 @@ var request = require('request');
 var DecompressZip = require('decompress-zip');
 var rimraf = require('rimraf');
 
-var Biscuit = require('./biscuit');
-var Oven = require('./oven');
+var Flapjack = require('./flapjack');
+var Stove = require('./stove');
 
 const DEFAULT_PORT = 4000;
 const REGEXP_ABS_URL = /^https?:\/\//i;
@@ -140,7 +140,7 @@ module.exports = {
     return generated.promise;
   },
   /**
-   * Starts a new Biscuit HTTP server attached to the specified directory
+   * Starts a new Flapjack HTTP server attached to the specified directory
    * and listening on the specified port.
    *
    * @params  {string}  [src='.'] Path to the biscuit source code. Defaults to the current
@@ -150,11 +150,11 @@ module.exports = {
    * @returns {object}  A deferred promise which is resolved once the server is running.
    */
   startServer: function(src, port) {
-    var o = new Oven(new Biscuit(src || process.cwd()));
+    var o = new Stove(new Flapjack(src || process.cwd()));
     return o.start(port || DEFAULT_PORT);
   },
   /**
-   * Stops the Biscuit HTTP server attached to the specified directory.
+   * Stops the Flapjack HTTP server attached to the specified directory.
    *
    * @param   {string}  [src='.'] Path to the biscuit source code.  Defaults to the current
    *                            working directory if not specified.
@@ -162,11 +162,11 @@ module.exports = {
    * @returns {object}  A deferred promise which is resolved once the server is stopped.
    */
   stopServer: function(src) {
-    var o = new Oven(new Biscuit(src || process.cwd()));
+    var o = new Stove(new Flapjack(src || process.cwd()));
     return o.stop();
   },
   /**
-   * Restarts a Biscuit HTTP server attached to the specified directory.
+   * Restarts a Flapjack HTTP server attached to the specified directory.
    *
    * @params  {string}   [src='.'] Path to the biscuit source code. Defaults to the current
    *                              working directory if not specified.
@@ -175,7 +175,7 @@ module.exports = {
    * @returns {object}   A deferred promise which is resolved once the server is restarted.
    */
   restartServer: function(src, port) {
-    var o = new Oven(new Biscuit(src || process.cwd()));
+    var o = new Stove(new Flapjack(src || process.cwd()));
     return b.stopServer().then(
       function(msg) {
         console.log(msg);
