@@ -18,6 +18,10 @@ const GITHUB_HOST = 'https://github.com';
 const GITHUB_ARCHIVE = 'archive/master.zip';
 const ARTIFACT = path.resolve(__dirname, 'artifact');
 
+if(!fs.existsSync(ARTIFACT)) {
+  fs.mkdirSync(ARTIFACT);
+}
+
 /**
  * Convert the specified url to the appropriate github archive url.
  *
