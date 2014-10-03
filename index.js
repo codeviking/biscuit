@@ -16,11 +16,9 @@ const DEFAULT_PORT = 4000;
 const REGEXP_ABS_URL = /^https?:\/\//i;
 const GITHUB_HOST = 'https://github.com';
 const GITHUB_ARCHIVE = 'archive/master.zip';
-const ARTIFACT = path.resolve(__dirname, 'artifact');
-
-if(!fs.existsSync(ARTIFACT)) {
-  fs.mkdirSync(ARTIFACT);
-}
+// TODO: Figure out if there's a way to derive the environment appropriate
+// equivalent of /tmp.
+const TMP_DIR = '/tmp';
 
 /**
  * Convert the specified url to the appropriate github archive url.
@@ -80,7 +78,7 @@ module.exports = {
       throw util.format('Invalid destination: "%s"', dest);
     }
 
-    var archive = path.resolve(ARTIFACT, Date.now() + '-archive.zip');
+    var archive = path.resolve(TMP_DIR, Date.now() + '-archive.zip');
 
     var ws = fs.createWriteStream(archive);
 
@@ -108,7 +106,7 @@ module.exports = {
             if(log.length > 0) {
               var parent = log.shift();
               if(parent.folder) {
-                var from = path.resolve(ARTIFACT, parent.folder);
+                var from = path.resolve(TMP_DIR, parent.folder);
                 console.log('Archive extracted, copying "%s" to "%s"...', from, dest);
                 ncp(from, dest, function(err) {
                   rimraf(from, function() {
@@ -128,7 +126,7 @@ module.exports = {
                 });
               } else {
                 generated.reject('Unexpected archive format.');
-                rimraf(path.resolve(ARTIFACT, '**', '*'),
+                rimraf(path.resolve(TMP_DIR, '**', '*'),
                     generated.reject.bind(generated, 'Invalid recipe.'));
               }
             }
@@ -136,7 +134,7 @@ module.exports = {
 
           console.log(util.format('Download complete, unarchiving "%s"', archive));
           unzipper.extract({
-            path: ARTIFACT
+            path: TMP_DIR
           });
         }
       }).pipe(ws);
