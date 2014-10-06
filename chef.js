@@ -16,6 +16,14 @@ const GITHUB_ARCHIVE = 'archive/master.zip';
 // equivalent of /tmp.
 const TMP_DIR = '/tmp';
 
+/**
+ * Move the specified directory from one location to another.
+ *
+ * @param {string} from The directory to move.
+ * @param {string} to The path to move it to.
+ *
+ * @returns {object} A promise which is resolved once the directory is moved.
+ */
 function move(from, to) {
   var copied = q.defer();
 
@@ -37,6 +45,15 @@ function move(from, to) {
   return copied.promise;
 }
 
+/**
+ * Installs the dependencies present in the specified path by executing
+ * npm install.
+ *
+ * @param {string} src The path to the directory containing the package.json
+ *
+ * @returns {object} A deferred promise which is resolved once the project's dependencies
+ *                   have been installed.
+ */
 function installDependencies(src) {
   var installed = q.defer();
 
@@ -53,6 +70,13 @@ function installDependencies(src) {
   return installed.promise;
 }
 
+/**
+ * Extracts the specified zip archive.
+ *
+ * @param {string} archive The path to the zip archive to extract.
+ *
+ * @returns {object} A deferred promise which is resolved once the archiv eie xtracted.
+ */
 function extractArchive(archive) {
   var extracted = q.defer();
 
@@ -90,6 +114,14 @@ function extractArchive(archive) {
   return extracted.promise;
 }
 
+/**
+ * Downloads the contents of the specified url.
+ *
+ * @param {string} url The url to download.
+ *
+ * @returns {object} A deferred promise which is resolved once the resources
+ *                   at the specified url have been downloaded.
+ */
 function downloadArchive(url) {
   var downloaded = q.defer();
 
@@ -167,6 +199,7 @@ module.exports = {
       dest = process.cwd();
     }
 
+    // Make sure we have a fully resolved path
     dest = path.resolve(dest);
 
     // Create the target directory if it doesn't exist
@@ -174,6 +207,7 @@ module.exports = {
       fs.mkdirSync(dest);
     }
 
+    // Make sure our destination is a valid directory
     if(!fs.statSync(dest).isDirectory()) {
       throw util.format('Invalid destination: "%s"', dest);
     }

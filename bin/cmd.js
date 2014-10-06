@@ -16,34 +16,23 @@ if(args.help) {
 }
 
 var command = args._.slice(2).shift();
-var action;
-var actionArgs;
 
-// TODO:
-// This could be dyanmic.  Take the command, camel-case
-// and attempt o call on the specified.
-switch(command) {
-  case 'generate':
-    action = flapjack.generate;
-    actionArgs = args._.slice(3);
-    break;
-  case 'start-server':
-    action = flapjack.startServer;
-    actionArgs = args._.slice(3);
-    break;
-  case 'stop-server':
-    action = flapjack.stopServer;
-    actionArgs = args._.slice(3);
-    break;
-  case 'restart-server':
-    action = flapjack.restartServer;
-    actionArgs = args._.slice(3);
-    break;
-}
+// Take method names which are dash-seperated instead of camel-cased
+// and convert them into the equivalent camel-cased method name.
+// For example, "start-server" becomes "startServer";
+var methodName = '';
+command.split('-').forEach(function(part, i) {
+  if(i !== 0) {
+    part = part.substr(0, 1).toUpperCase() + part.substr(1);
+  }
+  methodName += part;
+});
 
-if(action && actionArgs) {
+if(flapjack.hasOwnProperty(methodName) &&
+    typeof flapjack[methodName] === 'function'
+) {
   try {
-    action.apply(flapjack, actionArgs).then(
+    flapjack[methodName].apply(flapjack, args._.slice(3)).then(
       function(message) {
         if(message) {
           console.log('Success: '.green + message);

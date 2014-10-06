@@ -6,19 +6,19 @@ var cp = require('child_process');
 var futil = require('flapjack-util');
 var events = require('events');
 
-function Flapjack(base) {
-  if(!base || !fs.existsSync(base) || !fs.statSync(base).isDirectory()) {
-    throw util.format('Invalid directory: "%s"', base.magenta);
+function Flapjack(src) {
+  if(!src || !fs.existsSync(src) || !fs.statSync(src).isDirectory()) {
+    throw util.format('Invalid directory: "%s"', src.magenta);
   }
-  this.base = base;
-  var pathsPath = path.resolve(this.base, 'paths.js');
+  this.src = src;
+  var pathsPath = path.resolve(this.src, 'paths.js');
   var paths;
   try {
     paths = require(pathsPath);
   } catch(e) {
     throw util.format('Missing paths: "%s"', pathsPath);
   }
-  this.paths = new futil.Paths(this.base, paths);
+  this.paths = new futil.Paths(this.src, paths);
 
   // If the build and var directories don't exist, create them
   if(!fs.existsSync(this.paths.build)) {
@@ -46,51 +46,28 @@ Flapjack.prototype.status = function() {
 Flapjack.prototype.build = function() {
   if(this.status() !== Flapjack.Status.BUILDING) {
     this.emit(Flapjack.Event.BUILDING, this);
+
     this.building = q.defer();
     this.error = undefined;
 
-    this.building.promise.then(
-      function() {
-        this.emit.apply(this, [ Flapjack.Event.BUILD_SUCCESSFUL ].concat(
-            Array.prototype.slice.apply(arguments)));
-        return this.building.promise;
-      }.bind(this),
-      function() {
-        this.emit.apply(this, [ Flapjack.Event.BUILD_FAILED ].concat(
-            Array.prototype.slice.apply(arguments)));
-        return this.building.promise;
+    var p = cp.fork(path.resolve(__dirname, 'gulp-runner.js'), { cwd: this.src });
+
+    p.on('message', function(m) {
+        var message = new futil.GulpMessage(m);
+        if(message.data === 'complete' && !this.error) {
+          this.emit(Flapjack.Event.BUILD_SUCCESSFUL, this);
+          this.building.resolve(this);
+        } else if(message.type === futil.GulpMessage.Type.ERROR) {
+          this.emit(Flapjack.Event.BUILD_FAILED, this.error);
+          this.error = message.data;
+          this.building.reject(this.error);
+        }
       }.bind(this));
 
-    // TODO: refactor to use fork, and use process.send to send error
-    // information back to this process in a non-chunked form.
-    var g = cp.spawn('gulp', [ '--flapjack' ], { cwd: this.base });
-
-    var error = '';
-    g.stderr.on('data', function(d) {
-      error += d;
-    });
-
-    g.on('error', function(e) {
-      this.building.reject(
-        new futil.GulpTaskError({
-          task: 'gulp',
-          message: 'Error Executing Gulp Build',
-          extra: e
-        })
-      );
-    }.bind(this));
-
-    g.on('close', function() {
-      if(error) {
-        try {
-          error = new futil.GulpTaskError(JSON.parse(error));
-        } catch(e) {}
-        this.error = error;
-        this.building.reject(error);
-      } else {
-        this.building.resolve();
-      }
-    }.bind(this));
+    p.send(new futil.GulpMessage({
+        type: futil.GulpMessage.Type.MESSAGE,
+        data: 'start'
+      }));
   }
   return this.building.promise;
 };

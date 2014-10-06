@@ -85,14 +85,18 @@ app.use(function(request, response, next) {
 
 app.use(express.static(flapjack.paths.build));
 
-app.listen(port, function() {
-  console.log(
-      util.format('%s server started\nSource: %s\nBuild: %s\nPort: %s',
-        'Flapjack'.cyan, flapjack.paths.src.magenta, flapjack.paths.build.magenta,
-        port.green
-      )
-    );
-  if(typeof process.send === 'function') {
-    process.send('SERVER_STARTED');
+process.on('message', function(m) {
+  if(m === 'start-server') {
+    app.listen(port, function() {
+      console.log(
+          util.format('%s server started\nSource: %s\nBuild: %s\nPort: %s',
+            'Flapjack'.cyan, flapjack.paths.src.magenta, flapjack.paths.build.magenta,
+            port.green
+          )
+        );
+      if(typeof process.send === 'function') {
+        process.send('server-started');
+      }
+    });
   }
 });

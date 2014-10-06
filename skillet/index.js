@@ -6,7 +6,7 @@ var cp = require('child_process');
 
 function Skillet(flapjack) {
   this.flapjack = flapjack;
-};
+}
 
 Skillet.prototype.pidFile = function() {
   return path.resolve(this.flapjack.paths.var, 'stove.pid');
@@ -44,7 +44,7 @@ Skillet.prototype.start = function(port) {
   if(!this.isRunning()) {
     // Spawn the "oven" (our http server)
     var p = cp.fork(path.resolve(__dirname, 'server.js'),
-        [ this.flapjack.base, port ]);
+        [ this.flapjack.src, port ]);
 
     // Write the pid out to a pid file
     this.pid(p.pid);
@@ -52,7 +52,7 @@ Skillet.prototype.start = function(port) {
     // Wait for the SERVER_STARTED message from the child process, which
     // indicates the server is up and running.
     p.on('message', function(m) {
-      if(m === 'SERVER_STARTED') {
+      if(m === 'server-started') {
         started.resolve();
       }
     });
@@ -71,6 +71,9 @@ Skillet.prototype.start = function(port) {
       started.reject(util.format(
         'Server unexpectantly shut down. Code: %s, Signal: %s', code, signal));
     }.bind(this));
+
+    // Kick things off
+    p.send('start-server');
   } else {
     started.reject(util.format('Server is already running with pid: %s', this.pid()));
   }

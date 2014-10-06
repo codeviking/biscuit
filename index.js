@@ -28,6 +28,17 @@ module.exports = {
     return chef.generate(url, dest);
   },
   /**
+   * Executes the gulp-build for the flapjack project at the specified
+   * path.
+   *
+   * @param {string} [src.] The path to the project. Defaults to the current working directory.
+   *
+   * @returns {object} A deferred promise which is resolved once the build is complete.
+   */
+  build: function(src) {
+    return new Flapjack(src || process.cwd()).build();
+  },
+  /**
    * Starts a new Flapjack HTTP server attached to the specified directory
    * and listening on the specified port.
    *
