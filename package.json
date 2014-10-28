@@ -1,14 +1,12 @@
 {
   "name": "flapjack",
   "description": "A simple API for generating new projects from recipes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "bin": "bin/cmd.js",
   "repository": "/allenai/flapjack.git",
   "keywords": [
     "flapjack",
-    "gulp",
-    "front-end",
-    "http server"
+    "scaffolding"
   ],
   "contributors": [
     {
