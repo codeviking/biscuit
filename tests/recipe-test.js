@@ -61,7 +61,6 @@ describe('recipe', function() {
   });
 
   it('creates a directory that doesn\'t exist', function() {
-
     var f = new recipe(RELATIVE_URL, CREATE_ME);
     assert.equal(f.dir, CREATE_ME);
     assert(fs.existsSync(CREATE_ME));
