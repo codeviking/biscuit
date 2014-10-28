@@ -1,13 +1,15 @@
 #!/usr/bin/env node
 var flapjack = require('../');
 var fs = require('fs');
-var colors = require('colors');
 var minimist = require('minimist');
+var Log = require('log');
+
+var log = new Log('info');
 
 var args = minimist(process.argv);
 
 function usage() {
-  console.log(fs.readFileSync(__dirname + '/usage.txt', 'utf-8'));
+  console.log('\n' + fs.readFileSync(__dirname + '/usage.txt', 'utf-8'));
 }
 
 if(args.help) {
@@ -21,34 +23,34 @@ var command = args._.slice(2).shift();
 // and convert them into the equivalent camel-cased method name.
 // For example, "start-server" becomes "startServer";
 var methodName = '';
-command.split('-').forEach(function(part, i) {
-  if(i !== 0) {
-    part = part.substr(0, 1).toUpperCase() + part.substr(1);
-  }
-  methodName += part;
-});
+if(command) {
+  command.split('-').forEach(function(part, i) {
+    if(i !== 0) {
+      part = part.substr(0, 1).toUpperCase() + part.substr(1);
+    }
+    methodName += part;
+  });
+}
 
-if(flapjack.hasOwnProperty(methodName) &&
-    typeof flapjack[methodName] === 'function'
-) {
+if(flapjack.hasOwnProperty(methodName) && typeof flapjack[methodName] === 'function') {
   try {
     flapjack[methodName].apply(flapjack, args._.slice(3)).then(
       function(message) {
         if(message) {
-          console.log('Success: '.green + message);
+          log.info(message);
         }
         process.exit(0);
       },
       function(error) {
         if(error) {
-          console.error('Error: '.red + error);
+          log.error(error);
+          usage();
         }
         process.exit(1);
       }
     );
   } catch(e) {
-    console.error('Error: '.red + e.toString());
-    console.log();
+    log.error(e.toString());
     usage();
     process.exit(1);
   }
