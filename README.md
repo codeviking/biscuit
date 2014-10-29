@@ -29,4 +29,4 @@ flapjack generate URL TARGET
 flapjack generate allenai/angular-recipe.recipe
 flapjack generate allenai/angular-recipe.recipe /tmp
 flapjack generate allenai/angular-recipe.recipe ~/Projects/a-new-angular-project
-````
+```
